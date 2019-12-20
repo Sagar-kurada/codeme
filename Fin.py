@@ -19,7 +19,7 @@ import seaborn as sns
 from scipy.io import arff
 # To analyze the type of missing data
 import missingno as msno
-# Library for performing k-NN and MICE imputations 
+# Library for performing k-NN and MICE imputations
 import fancyimpute
 # Library to perform Expectation-Maximization (EM) imputation
 #import impyute as impy
@@ -32,7 +32,7 @@ from collections import Counter
 # Ordered Dictionarya
 from collections import OrderedDict
 # Library imbalanced-learn to deal with the data imbalance. To use SMOTE oversampling
-from imblearn.over_sampling import SMOTE 
+from imblearn.over_sampling import SMOTE
 
 # Impoting classification models
 #from xgboost import XGBClassifier
@@ -55,7 +55,7 @@ from sklearn.metrics import precision_recall_curve
  #pip install xgboost
 #pip install missingno
 #pip install fancyimpute
-#pip 
+#pip
 from xgboost import XGBClassifier
 
 import os
@@ -77,7 +77,7 @@ def set_headers(dataframes):
 
 dataframes = convert_in_df()
 
-set_headers(dataframes)    
+set_headers(dataframes)
 
 dataframes[0].head()
 
@@ -88,13 +88,13 @@ dataframes[0]['Y']
 n=5
 for i in range(n):
     print(dataframes[i].shape)
-    
+
 #dataframes[0].isnull().sum().sort_values()
-    
+
 n=5
 for i in range(n):
     print(dataframes[i].isnull().sum().sort_values(ascending=False).head(5))
-    
+
 for i in range(n):
         col = getattr(dataframes[i], 'Y')
         dataframes[i]['Y'] = col.astype(int)
@@ -106,22 +106,22 @@ for i in range(n):
             col = getattr(dataframes[i], colname)
             dataframes[i][colname] = col.astype(float)
             index+=1
-            
+
 dataframes[0].describe()
 
 n=5
 for i in range(n):
     print(dataframes[i]['Y'].value_counts())
-    
+
 for i in range(5):
         missing_df_i = dataframes[i].columns[dataframes[i].isnull().any()].tolist()
         msno.matrix(dataframes[i][missing_df_i], figsize=(20,5))
-        
+
 imputer = Imputer(missing_values=np.nan, strategy='mean', axis=0)
 mean_imputed_dfs = [pd.DataFrame(imputer.fit_transform(df)) for df in dataframes]
 for i in range(len(dataframes)):
         mean_imputed_dfs[i].columns = dataframes[i].columns
-        
+
 
 mean_imputed_dfs[0].head()
 
@@ -130,7 +130,7 @@ consolidatedDfs=pd.DataFrame(index=mean_imputed_dfs[0].index,columns=mean_impute
 #for i in range(5):
 consolidatedDfs=pd.concat([mean_imputed_dfs[0],mean_imputed_dfs[1],mean_imputed_dfs[2],mean_imputed_dfs[3],mean_imputed_dfs[4]
 ])
-    
+
 consolidatedDfs.shape
 consolidatedDfs.to_csv('consolidates.csv')
 
@@ -163,8 +163,8 @@ for clf in model_list:
     feature_weight = clf.coef_
     print("The validation score of model",clf.score(X_test,y_test))
     print("The number of selected feature of model",(np.sum(abs(feature_weight) > threshold)))
-    
- #logistic regression   
+
+ #logistic regression
 listC = 10.0**np.arange(-4,4)
 parameter = {'C':listC}
 lr = LogisticRegression(penalty = 'l1')
@@ -187,17 +187,17 @@ scores = np.zeros((maxDepth, kFold))
 
 for depth in np.arange(1, maxDepth + 1):
     model_Dtree = DecisionTreeClassifier(max_depth=depth)
-    scores[depth - 1] = cross_val_score(model_Dtree, X_train, 
+    scores[depth - 1] = cross_val_score(model_Dtree, X_train,
                                         y_train, cv=kFold)
-    
+
 plt.style.use('ggplot')
-plt.errorbar(range(1, maxDepth + 1), np.average(scores, axis=1), 
-             color='blue', linestyle='--', marker='o', markersize=10, 
-             yerr=np.std(scores, axis=1), ecolor='pink', 
+plt.errorbar(range(1, maxDepth + 1), np.average(scores, axis=1),
+             color='blue', linestyle='--', marker='o', markersize=10,
+             yerr=np.std(scores, axis=1), ecolor='pink',
              capthick=2)
 plt.xlabel("Maximum tree depth", fontsize = 16)
 plt.ylabel("Average accuracy", fontsize = 16)
-plt.title("Average accuracy on 10-Fold CV vs. Tree depth", 
+plt.title("Average accuracy on 10-Fold CV vs. Tree depth",
           fontsize = 20)
 plt.gcf().set_size_inches(12, 7)
 plt.tight_layout()
@@ -214,13 +214,13 @@ for depth in np.arange(1, maxDepth + 1):
 
 # Plot the results
 plt.style.use('ggplot')
-plt.plot(range(1, maxDepth + 1), trainging_scores, 'o--', 
+plt.plot(range(1, maxDepth + 1), trainging_scores, 'o--',
          markersize=10, color='blue', lw=1, label='Training accuracy')
 plt.plot(range(1, maxDepth + 1), testing_scores, 'o--',
          markersize=10, color='green', lw=1, label='Testing accuracy')
 plt.xlabel("Maximum tree depth", fontsize = 16)
 plt.ylabel("Average accuracy", fontsize = 16)
-plt.title("Training and Testing accuracy vs. Tree depth", 
+plt.title("Training and Testing accuracy vs. Tree depth",
           fontsize = 20)
 plt.legend(loc="best")
 plt.gcf().set_size_inches(12, 8)
@@ -243,7 +243,7 @@ def prepare_kfold_cv_data(k, X, y, verbose=False):
     y_train = []
     X_test = []
     y_test = []
-    
+
     for train_index, test_index in kf.split(X):
         X_train.append(X[train_index])
         y_train.append(y[train_index])
@@ -262,16 +262,16 @@ for k_index in range(5):
                     clf_model=gnb_classifier.fit(X_train, y_train)
                     y_test_predicted = clf_model.predict(X_test)
                     print(y_test_predicted,y_test)
-                    
+
                     accuracy_gnb = accuracy_score(y_test, y_test_predicted, normalize=True)
                     recall_gnb = recall_score(y_test, y_test_predicted, average=None)
                     precision_gnb = precision_score(y_test, y_test_predicted, average=None)
                     confusion_matrix_gnb = confusion_matrix(y_test, y_test_predicted)
-                    
+
                     print("Accuracy",accuracy_gnb ,"\n","Precision",precision_gnb,"\n","Recall",recall_gnb)
                     print(confusion_matrix_gnb)
                     confusion_matrix_gnb_df = pd.DataFrame(confusion_matrix_gnb,
-                                         index = ['survived','bankrupt'], 
+                                         index = ['survived','bankrupt'],
                                          columns = ['survived','bankrupt'])
 
                     plt.figure(figsize=(5.5,4))
@@ -280,9 +280,9 @@ for k_index in range(5):
                     plt.ylabel('True label')
                     plt.xlabel('Predicted label')
                     plt.show()
-                    
-                    
-                    
+
+
+
 #random forest
 
 
@@ -303,7 +303,7 @@ for k_index in range(5):
                     print("Accuracy",accuracy_rf ,"\n","Precision",precision_rf,"\n","Recall",recall_rf)
                     print(confusion_matrix_rf)
                     confusion_matrix_rf_df = pd.DataFrame(confusion_matrix_rf,
-                                         index = ['survived','bankrupt'], 
+                                         index = ['survived','bankrupt'],
                                          columns = ['survived','bankrupt'])
 
                     plt.figure(figsize=(5.5,4))
@@ -312,10 +312,10 @@ for k_index in range(5):
                     plt.ylabel('True label')
                     plt.xlabel('Predicted label')
                     plt.show()
-                    
+
 #Balanced Bagging classifier
-                    
-                    
+
+
 df_bk=pd.read_csv("/Users/sagarkurada/Documents/Courses/Data Mining/mgmt571/bankruptcy_Train.csv")
 df_bk_test=pd.read_csv("/Users/sagarkurada/Desktop/bankruptcy_Test_X.csv")
 print(df_bk)
@@ -345,7 +345,7 @@ for k_index in range(5):
                     #print(recall_bb)
                     #print(precision_bb)
                     confusion_matrix_bb_df = pd.DataFrame(confusion_matrix_bb,
-                                         index = ['survived','bankrupt'], 
+                                         index = ['survived','bankrupt'],
                                          columns = ['survived','bankrupt'])
 
                     plt.figure(figsize=(5.5,4))
@@ -354,19 +354,19 @@ for k_index in range(5):
                     plt.ylabel('True label')
                     plt.xlabel('Predicted label')
                     plt.show()
-                    
+
 X_train = X_train_list[4]
 y_train = y_train_list[4]
 bb_classifier = BalancedBaggingClassifier(base_estimator = RandomForestClassifier(criterion='entropy'), n_estimators = 5, bootstrap = True)
 clf_model=rf_classifier.fit(X_train, y_train)
 X_test=X_df_bk_test
 # print(X_df_bk)
-y_test_predicted = clf_model.predict(X_test) 
-print(y_test_predicted) 
-sum(y_test_predicted)                 
- 
-                    
-                    
+y_test_predicted = clf_model.predict(X_test)
+print(y_test_predicted)
+sum(y_test_predicted)
+
+
+
      ####real _code
 for k_index in range(5):
                     X_train = X_train_list[k_index]
@@ -387,7 +387,7 @@ for k_index in range(5):
                     print(recall_bb)
                     print(precision_bb)
                     confusion_matrix_bb_df = pd.DataFrame(confusion_matrix_bb,
-                                         index = ['survived','bankrupt'], 
+                                         index = ['survived','bankrupt'],
                                          columns = ['survived','bankrupt'])
 
                     plt.figure(figsize=(5.5,4))
@@ -396,8 +396,8 @@ for k_index in range(5):
                     plt.ylabel('True label')
                     plt.xlabel('Predicted label')
                     plt.show()
-                                  
-                    
+
+
 #XG Boost Claasifier
 
 for k_index in range(5):
@@ -416,7 +416,7 @@ for k_index in range(5):
                     print("Accuracy",accuracy_xgb ,"\n","Precision",precision_xgb,"\n","Recall",recall_xgb)
                     print(confusion_matrix_xgb)
                     confusion_matrix_xgb_df = pd.DataFrame(confusion_matrix_xgb,
-                                         index = ['survived','bankrupt'], 
+                                         index = ['survived','bankrupt'],
                                          columns = ['survived','bankrupt'])
 
                     plt.figure(figsize=(5.5,4))
@@ -425,8 +425,8 @@ for k_index in range(5):
                     plt.ylabel('True label')
                     plt.xlabel('Predicted label')
                     plt.show()
-                    
-                    
+
+
 df_bk=pd.read_csv("/Users/sagarkurada/Documents/Courses/Data Mining/mgmt571/bankruptcy_Train.csv")
 df_bk_test=pd.read_csv("/Users/sagarkurada/Desktop/bankruptcy_Test_X.csv")
 print(df_bk)
@@ -442,7 +442,7 @@ for k_index in range(5):
                     xgb_classifier = XGBClassifier()
                     clf_model=xgb_classifier.fit(X_train, y_train)
                     X_test=X_df_bk
-                    
+
                     y_test_predicted = clf_model.predict(X_test)
                     y_test=y_df_bk
                     #print(y_test_predicted,y_test)
@@ -453,7 +453,7 @@ for k_index in range(5):
                     print("Accuracy",accuracy_xgb ,"\n","Precision",precision_xgb,"\n","Recall",recall_xgb)
                     print(confusion_matrix_xgb)
                     confusion_matrix_xgb_df = pd.DataFrame(confusion_matrix_xgb,
-                                         index = ['survived','bankrupt'], 
+                                         index = ['survived','bankrupt'],
                                          columns = ['survived','bankrupt'])
 
                     plt.figure(figsize=(5.5,4))
@@ -462,4 +462,6 @@ for k_index in range(5):
                     plt.ylabel('True label')
                     plt.xlabel('Predicted label')
                     plt.show()
-                    
+
+
+# this is the base file used for checking 
